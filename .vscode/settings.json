@@ -1,0 +1,14 @@
+// .vscode/settings.json
+{
+  "editor.formatOnSave": true, // 저장 시 자동 포맷팅 활성화
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // 기본 포맷터를 Prettier로 설정
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit" // 저장 시 ESLint 자동 수정 기능 활성화
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ]
+}
