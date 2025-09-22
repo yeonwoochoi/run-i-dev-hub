@@ -1,3 +1,3 @@
-export default function Home() {
+export default function Tooltip() {
   return <div className=""></div>;
 }
