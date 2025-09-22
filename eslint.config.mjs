@@ -19,7 +19,10 @@ const compat = new FlatCompat({
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
   // 1. Next.js의 기본 설정들을 불러옵니다. (core-web-vitals, typescript 등)
-  ...compat.extends('next/core-web-vitals', 'plugin:@typescript-eslint/recommended'),
+  ...compat.extends(
+    'next/core-web-vitals',
+    'plugin:@typescript-eslint/recommended'
+  ),
 
   // 2. Prettier의 스타일 충돌 방지 설정을 추가합니다.
   prettierConfig,
