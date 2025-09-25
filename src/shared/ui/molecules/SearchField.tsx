@@ -1,3 +1,4 @@
 export default function SearchField() {
-  return <div className=""></div>;
+  // Input + Icon
+  return null;
 }

@@ -18,6 +18,11 @@ const compat = new FlatCompat({
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
+  // 1. 무시할 파일 및 폴더 설정
+  {
+    ignores: ['.next/', 'node_modules/', 'next-env.d.ts'],
+  },
+
   // 1. Next.js의 기본 설정들을 불러옵니다. (core-web-vitals, typescript 등)
   ...compat.extends(
     'next/core-web-vitals',
@@ -39,7 +44,14 @@ const eslintConfig = [
       // (선택) 프로젝트에서 필요 없는 규칙들은 여기서 비활성화할 수 있습니다.
       'prefer-const': 'warn', // const 대신 let을 쓰면 경고 표시
       '@typescript-eslint/no-explicit-any': 'warn', // any 타입 사용 시 경고 표시
-      '@typescript-eslint/no-unused-vars': 'warn', // 사용하지 않는 변수 경고 표시
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ];
