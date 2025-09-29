@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -139,6 +139,23 @@ const FileTextIcon = (props) => (
     <line x1="10" y1="9" x2="8" y2="9" />
   </svg>
 );
+const SearchIcon = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+);
 
 // --- MOCK DATA ---
 const domains = [
@@ -169,7 +186,7 @@ const mockItems = [
   {
     id: 1003,
     image: 'http://localhost:3000/images/sp_item_gloves_temp.png',
-    name: '수의 팔목장갑',
+    name: '수적의 팔목장갑',
     rank: 'N',
     sellPrice: 120,
   },
@@ -183,28 +200,28 @@ const mockItems = [
   {
     id: 1005,
     image: 'http://localhost:3000/images/sp_item_sword_temp.png',
-    name: '수적의 검',
+    name: '도적의 검',
     rank: 'M',
     sellPrice: 1100,
   },
   {
     id: 1006,
     image: 'http://localhost:3000/images/sp_item_spear_temp.png',
-    name: '수적의 창',
+    name: '도적의 창',
     rank: 'N',
     sellPrice: 800,
   },
   {
     id: 1007,
     image: 'http://localhost:3000/images/sp_item_hat_temp.png',
-    name: '수적의 모자',
+    name: '도적의 모자',
     rank: 'N',
     sellPrice: 550,
   },
   {
     id: 1008,
     image: 'http://localhost:3000/images/sp_item_bow_temp.png',
-    name: '수적의 대나무 활',
+    name: '도적의 대나무 활',
     rank: 'N',
     sellPrice: 450,
   },
@@ -212,6 +229,76 @@ const mockItems = [
     id: 1009,
     image: 'http://localhost:3000/images/sp_item_bow_temp_2.png',
     name: '수적의 전투 활',
+    rank: 'M',
+    sellPrice: 1500,
+  },
+  {
+    id: 1010,
+    image: 'http://localhost:3000/images/sp_item_bottom_temp.png',
+    name: '도적의 전투 바지',
+    rank: 'M',
+    sellPrice: 1500,
+  },
+  {
+    id: 1011,
+    image: 'http://localhost:3000/images/sp_item_bottom_temp.png',
+    name: '도적의 더러운 바지', // image에 맞춘 이름
+    rank: 'N',
+    sellPrice: 300,
+  },
+  {
+    id: 1012,
+    image: 'http://localhost:3000/images/sp_item_top_temp.png',
+    name: '도적의 더러운옷',
+    rank: 'N',
+    sellPrice: 250,
+  },
+  {
+    id: 1013,
+    image: 'http://localhost:3000/images/sp_item_gloves_temp.png',
+    name: '도적의 팔목장갑',
+    rank: 'N',
+    sellPrice: 120,
+  },
+  {
+    id: 1014,
+    image: 'http://localhost:3000/images/sp_item_shoes_temp.png',
+    name: '도적의 신발',
+    rank: 'N',
+    sellPrice: 450,
+  },
+  {
+    id: 1015,
+    image: 'http://localhost:3000/images/sp_item_sword_temp.png',
+    name: '도적의 검',
+    rank: 'M',
+    sellPrice: 1100,
+  },
+  {
+    id: 1016,
+    image: 'http://localhost:3000/images/sp_item_spear_temp.png',
+    name: '도적의 창',
+    rank: 'N',
+    sellPrice: 800,
+  },
+  {
+    id: 1017,
+    image: 'http://localhost:3000/images/sp_item_hat_temp.png',
+    name: '도적의 모자',
+    rank: 'N',
+    sellPrice: 550,
+  },
+  {
+    id: 1018,
+    image: 'http://localhost:3000/images/sp_item_bow_temp.png',
+    name: '도적의 대나무 활',
+    rank: 'N',
+    sellPrice: 450,
+  },
+  {
+    id: 1019,
+    image: 'http://localhost:3000/images/sp_item_bow_temp_2.png',
+    name: '도적의 전투 활',
     rank: 'M',
     sellPrice: 1500,
   },
@@ -230,14 +317,44 @@ const rankStyles = {
 export default function AssetStudioPage() {
   const [activeTab, setActiveTab] = useState('Item');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
+  const filteredItems = useMemo(() => {
+    if (!debouncedSearchTerm) {
+      return mockItems;
+    }
+    return mockItems.filter((item) =>
+      item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    );
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = mockItems.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(mockItems.length / itemsPerPage);
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = 23;
+  // const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-900 font-sans text-gray-300">
@@ -323,6 +440,20 @@ export default function AssetStudioPage() {
           </nav>
         </div>
 
+        {/* Search and Filters */}
+        <div className="mt-6">
+          <div className="relative">
+            <SearchIcon className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-500" />
+            <input
+              type="text"
+              placeholder="아이템 이름으로 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-sm rounded-lg border border-gray-600 bg-gray-700 py-2 pr-4 pl-10 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
         {/* Content Area */}
         <div className="mt-8">
           {activeTab === 'Item' && (
@@ -359,7 +490,7 @@ export default function AssetStudioPage() {
                           {item.id}
                         </td>
                         <td className="px-5 py-3">
-                          <Image
+                          <img
                             src={item.image}
                             alt={item.name}
                             className="h-10 w-10 rounded-md bg-gray-700 object-cover"
@@ -388,37 +519,36 @@ export default function AssetStudioPage() {
                   </tbody>
                 </table>
               </div>
+
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-gray-700 p-4">
-                <span className="text-sm text-gray-400">
-                  Showing {indexOfFirstItem + 1} to {10} of {428} results
-                </span>
-                <div className="flex items-center space-x-1">
-                  <button
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="rounded-md bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((number) => (
+              {totalPages > 0 && (
+                <div className="flex items-center justify-between border-t border-gray-700 p-4">
+                  <span className="text-sm text-gray-400">
+                    Showing {indexOfFirstItem + 1} to{' '}
+                    {Math.min(indexOfLastItem, filteredItems.length)} of 428
+                    results
+                  </span>
+                  <div className="flex items-center space-x-1">
                     <button
-                      key={number}
-                      onClick={() => paginate(number)}
-                      className={`rounded-md px-3 py-1 text-sm ${currentPage === number ? 'bg-indigo-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+                      onClick={() => paginate(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="rounded-md bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {number}
+                      Previous
                     </button>
-                  ))}
-                  <button
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="rounded-md bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Next
-                  </button>
+                    <span className="px-3 py-1 text-sm">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => paginate(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="rounded-md bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
           {/* Other domain tabs can be added here as needed */}
